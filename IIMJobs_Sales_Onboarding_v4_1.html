@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IIMJobs - Sales Role Classification</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#F8F9FA;color:#1A1A1A;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem}
+.container{width:100%;max-width:720px}
+.header{margin-bottom:2rem;text-align:center}
+.logo{font-size:14px;font-weight:700;color:#185FA5;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.5rem}
+.header h1{font-size:22px;font-weight:600;color:#1A1A1A;margin-bottom:.4rem}
+.header p{font-size:13px;color:#666;line-height:1.6}
+.card{background:#fff;border-radius:12px;border:1px solid #E5E5E5;padding:1.75rem;margin-bottom:1rem}
+.step-bar{display:flex;border-bottom:1px solid #E5E5E5;margin-bottom:1.75rem}
+.step{flex:1;text-align:center;padding:8px 4px 10px;font-size:11px;color:#999;border-bottom:2px solid transparent;margin-bottom:-1px}
+.step.active{color:#185FA5;border-bottom-color:#185FA5;font-weight:600}
+.step.done{color:#1D9E75;border-bottom-color:#1D9E75}
+.step-num{font-size:10px;display:block;margin-bottom:2px;opacity:.7}
+.progress{height:3px;background:#EEE;border-radius:2px;margin-bottom:1.5rem;overflow:hidden}
+.progress-fill{height:100%;background:#185FA5;border-radius:2px;transition:width .35s ease}
+.q{font-size:16px;font-weight:600;color:#1A1A1A;margin-bottom:.35rem}
+.qsub{font-size:12px;color:#777;margin-bottom:1.25rem;line-height:1.6}
+.options{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin-bottom:.5rem}
+.opt{background:#fff;border:1.5px solid #E5E5E5;border-radius:10px;padding:.75rem 1rem;cursor:pointer;transition:border-color .15s,background .15s}
+.opt:hover{border-color:#185FA5;background:#F0F6FF}
+.opt.selected{border-color:#185FA5;background:#EBF4FF}
+.opt.featured{border-color:#C5D8F5}
+.opt-label{font-size:13px;font-weight:600;color:#1A1A1A;margin-bottom:3px}
+.opt-sub{font-size:11px;color:#666;line-height:1.4;margin-bottom:2px}
+.opt-eg{font-size:10px;color:#999}
+.badge{display:inline-block;padding:1px 7px;border-radius:20px;font-size:10px;font-weight:600;background:#E6F1FB;color:#0C447C;margin-left:6px}
+.group-label{font-size:10px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.06em;margin:1rem 0 6px}
+.group-label:first-child{margin-top:0}
+.nav{display:flex;gap:8px;margin-top:1.25rem}
+.btn{padding:9px 22px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;border:1.5px solid #DDD;background:#fff;color:#444}
+.btn:hover{background:#F5F5F5}
+.btn.primary{background:#185FA5;color:#fff;border-color:#185FA5}
+.btn.primary:hover{background:#0C447C}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.summary{background:#F8FBFF;border-radius:10px;border:1px solid #C5D8F5;padding:1.25rem;margin-bottom:1rem}
+.sum-row{display:flex;gap:12px;align-items:flex-start;padding:.4rem 0;border-bottom:1px solid #EEF3F9}
+.sum-row:last-child{border-bottom:none}
+.sum-lbl{font-size:11px;color:#888;min-width:80px;padding-top:1px}
+.sum-val{font-size:13px;font-weight:600;color:#1A1A1A;flex:1}
+.sum-node{font-size:10px;color:#AAA;font-family:monospace;margin-left:8px;font-weight:400}
+.confirm-note{font-size:12px;color:#888;line-height:1.6;margin-bottom:1rem}
+footer{text-align:center;font-size:11px;color:#BBB;margin-top:1.5rem;padding-bottom:1rem}
+@media(max-width:480px){.options{grid-template-columns:1fr}}</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">IIMJobs</div>
+    <h1>Tell us about your Sales role</h1>
+    <p>Takes 2 minutes. Role options adapt to your industry so you only see what is relevant to you.</p>
+  </div>
+  <div class="card">
+    <div class="step-bar">
+      <div class="step active" id="sb0"><span class="step-num">01</span>Industry</div>
+      <div class="step" id="sb1"><span class="step-num">02</span>Domain</div>
+      <div class="step" id="sb2"><span class="step-num">03</span>Your role</div>
+      <div class="step" id="sb3"><span class="step-num">04</span>Seniority</div>
+    </div>
+    <div class="progress"><div class="progress-fill" id="pf" style="width:10%"></div></div>
+    <div id="content"></div>
+    <div class="nav" id="nav">
+      <button class="btn" id="backBtn" onclick="goBack()" style="display:none">Back</button>
+      <button class="btn primary" id="nextBtn" onclick="goNext()" disabled>Continue</button>
+    </div>
+  </div>
+  <footer>IIMJobs &middot; Premium Talent Platform &middot; v4.0 &middot; 19 Industries &middot; 77 Domains &middot; Roles adapt to your industry</footer>
+</div>
+<script>
+// Auto-generated from iimjobs_sales_taxonomy_v3.json
+
+const INDUSTRIES=[
+  {id:"fmcg",label:"FMCG & Consumer Goods",domains:[{id:"fmcg_cpg",label:"FMCG / CPG",eg:"HUL, ITC, P&G"},{id:"beauty_personal_care",label:"Beauty & Personal Care",eg:"L Oreal, Marico, Nykaa"},{id:"fashion_apparel",label:"Fashion & Apparel",eg:"Zara, Myntra, Fabindia"},{id:"consumer_durables",label:"Consumer Durables & Electronics",eg:"Samsung, LG, Havells"},{id:"d2c",label:"D2C Brands",eg:"boAt, Mamaearth, Sugar Cosmetics",cross_tags:["consumer_internet"]}]},
+  {id:"bfsi",label:"Banking & Financial Services",domains:[{id:"banking_lending",label:"Banking & Lending",eg:"HDFC Bank, Axis Bank, Kotak"},{id:"nbfc_microfinance",label:"NBFC / Microfinance",eg:"Bajaj Finance, Muthoot, Manappuram"},{id:"investments_wealth",label:"Investments & Wealth Management",eg:"Zerodha, Mirae, ICICI Pru AMC"},{id:"brokerages",label:"Brokerages & Stock",eg:"Zerodha, Angel One, Kotak Securities"},{id:"insurance",label:"Insurance",eg:"LIC, HDFC Life, Star Health"},{id:"payments_card_networks",label:"Payments & Card Networks",eg:"Visa, Mastercard, RuPay"}]},
+  {id:"fintech",label:"Fintech",domains:[{id:"payments_fintech",label:"Payments & UPI",eg:"PhonePe, Razorpay, Paytm"},{id:"lending_tech",label:"Lending Tech",eg:"Slice, KreditBee, Lendingkart"},{id:"wealthtech_insurtech",label:"Wealthtech / Insurtech",eg:"Groww, Smallcase, Digit"}]},
+  {id:"saas_tech",label:"SaaS & Tech Products",domains:[{id:"saas_software",label:"SaaS Software Products",eg:"Salesforce, Freshworks, Zoho"},{id:"ai_ml_platforms",label:"AI / ML Platforms",eg:"OpenAI, Sarvam, Krutrim"},{id:"data_analytics",label:"Data & Analytics Platforms",eg:"Databricks, Thoughtspot, MicroStrategy"},{id:"cybersecurity",label:"Cybersecurity",eg:"Palo Alto, CrowdStrike, Trellix"},{id:"cloud_infra",label:"Cloud & Infra Platforms",eg:"AWS, Azure, GCP"},{id:"devtools",label:"DevTools & Developer Platforms",eg:"GitHub, GitLab, Postman"}]},
+  {id:"it_services",label:"IT Services",domains:[{id:"it_outsourcing",label:"IT Services & Outsourcing",eg:"TCS, Infosys, Wipro"},{id:"it_consulting",label:"IT Consulting & Solutions",eg:"Accenture, Deloitte Tech, Capgemini"}]},
+  {id:"industrial_manufacturing",label:"Industrial & Manufacturing",domains:[{id:"industrial_machinery",label:"Industrial Machinery & Equipment",eg:"Thermax, Cummins, Caterpillar"},{id:"automotive",label:"Automotive & Manufacturing",eg:"Tata Motors, Bosch, Maruti"},{id:"industrial_chemicals",label:"Industrial Chemicals & Materials",eg:"BASF, Pidilite, Asian Paints Ind."},{id:"energy_power",label:"Energy & Power",eg:"NTPC, Adani Green, Tata Power"},{id:"defence_aerospace",label:"Defence & Aerospace",eg:"HAL, BEL, L&T Defence"},{id:"semiconductors",label:"Semiconductors & Electronics Mfg",eg:"Intel India, Texas Instruments, Moschip"},{id:"textiles",label:"Textiles & Apparel Mfg",eg:"Arvind, Raymond, Vardhman"},{id:"construction_materials",label:"Construction Materials & Building Products",eg:"UltraTech, JSW Cement, Saint-Gobain"}]},
+  {id:"pharma_healthcare",label:"Pharma & Healthcare",domains:[{id:"pharma_rx",label:"Pharma / Generics",eg:"Sun Pharma, Cipla, Dr Reddy s"},{id:"medtech_devices",label:"MedTech & Devices",eg:"Abbott, Stryker, Philips Health"},{id:"healthcare_services",label:"Healthcare Services",eg:"Apollo, Manipal, Narayana"},{id:"diagnostics_labs",label:"Diagnostics & Labs",eg:"Dr Lal PathLabs, Metropolis, SRL"},{id:"health_tech",label:"Health Tech",eg:"Practo, PharmEasy, 1mg"},{id:"clinical_research",label:"Clinical Research & CRO",eg:"ICON, Covance, Parexel India"}]},
+  {id:"edtech",label:"Education & Edtech",domains:[{id:"edtech_platforms",label:"Edtech Platforms",eg:"Byju s, Unacademy, upGrad"},{id:"skilling_vocational",label:"Skilling & Vocational",eg:"Josh Talks, Skill-Lync, NSDC"},{id:"ed_infrastructure",label:"Ed Infrastructure",eg:"NIIT, Manipal Global, Pearson"},{id:"k12_school_tech",label:"K12 & School Tech",eg:"LEAD School, Teachmint, Classplus"},{id:"corporate_ld",label:"Corporate L&D / Enterprise Edtech",eg:"Coursera for Business, LinkedIn Learning, Udemy Business"}]},
+  {id:"real_estate",label:"Real Estate & EPC",domains:[{id:"residential_re",label:"Residential Real Estate",eg:"DLF, Godrej Properties, Lodha"},{id:"commercial_re",label:"Commercial Real Estate",eg:"Embassy, Brookfield, Mindspace"},{id:"epc_infra",label:"EPC & Infrastructure",eg:"L&T, Shapoorji, NCC"},{id:"proptech",label:"PropTech",eg:"NoBroker, Housing.com, Square Yards"},{id:"coworking_managed",label:"Co-Working & Managed Spaces",eg:"WeWork India, Awfis, IndiQube"}]},
+  {id:"consumer_internet",label:"Consumer Internet",domains:[{id:"ecomm_marketplace_ci",label:"E-Commerce & Marketplace",eg:"Flipkart, Meesho, Amazon IN"},{id:"consumer_apps",label:"Consumer Apps & Services",eg:"Swiggy, Zomato, Urban Company"},{id:"social_content",label:"Social & Content Platforms",eg:"ShareChat, Dailyhunt, Josh"}]},
+  {id:"telecom",label:"Telecom & Networking",domains:[{id:"telecom_operators",label:"Telecom Operators",eg:"Airtel, Jio, Vi"},{id:"telecom_infra",label:"Telecom Infrastructure",eg:"Indus Towers, Ericsson, Nokia"},{id:"networking_hardware",label:"Networking & Hardware",eg:"Cisco, Juniper, D-Link"},{id:"satellite_connectivity",label:"Satellite & Emerging Connectivity",eg:"OneWeb, Hughes, Starlink India"}]},
+  {id:"media_entertainment",label:"Media & Entertainment / AdTech",domains:[{id:"broadcasting_ott",label:"Broadcasting & OTT",eg:"Zee, Sony LIV, Disney+ Hotstar"},{id:"adtech_programmatic",label:"AdTech & Programmatic",eg:"InMobi, Affle, DAN"},{id:"print_digital_media",label:"Print & Digital Media",eg:"Times of India, HT Media, India Today"}]},
+  {id:"logistics_supply_chain",label:"Logistics & Supply Chain",domains:[{id:"last_mile_logistics",label:"Last Mile Logistics",eg:"Delhivery, XpressBees, Ecom Express"},{id:"b2b_freight",label:"B2B Freight & Trucking",eg:"Rivigo, BlackBuck, Porter"},{id:"logistics_tech",label:"Logistics Tech & SaaS",eg:"Locus, FarEye, Shiprocket"}]},
+  {id:"staffing_hr_tech",label:"Staffing & HR Tech",domains:[{id:"staffing_rpo",label:"Staffing & RPO",eg:"TeamLease, Quess Corp, ManpowerGroup"},{id:"hr_tech_platforms",label:"HR Tech Platforms",eg:"Darwinbox, Keka, greytHR"},{id:"recruitment_consulting",label:"Recruitment & Job Platforms",eg:"Naukri (Info Edge), LinkedIn, Indeed"}]},
+  {id:"professional_services",label:"Professional Services",domains:[{id:"big4_advisory",label:"Big 4 & Advisory",eg:"EY, Deloitte, PwC"},{id:"mgmt_consulting",label:"Management Consulting",eg:"McKinsey, BCG, Bain"},{id:"tax_legal",label:"Tax, Legal & Compliance Services",eg:"Cyril Amarchand, AZB, Lakshmikumaran"}]},
+  {id:"agri_food_tech",label:"Agri & Food Tech",domains:[{id:"agri_inputs",label:"Agri Inputs & Crop Science",eg:"UPL, Bayer Crop Science, Syngenta"},{id:"agri_supply_chain",label:"Agri Supply Chain & Mandis",eg:"Ninjacart, DeHaat, AgroStar"},{id:"agri_tech",label:"Agri Tech Platforms",eg:"ITC Agri, CropIn, Fasal"}]},
+  {id:"govt_psu_defence",label:"Government / PSU & Defence",domains:[{id:"central_state_govt",label:"Central & State Govt / PSU",eg:"ONGC, BHEL, SAIL"},{id:"defence_psu",label:"Defence & Aerospace PSU",eg:"HAL, BEL, DRDO"},{id:"smart_cities_infra",label:"Smart Cities & Public Infra",eg:"DMRC, NHAI, Smart City SPVs"}]},
+  {id:"hospitality_travel",label:"Hospitality & Travel",domains:[{id:"hotels_hospitality",label:"Hotels & Hospitality",eg:"Marriott, Taj Hotels, ITC Hotels"},{id:"travel_ota",label:"Travel & OTA",eg:"MakeMyTrip, EaseMyTrip, Thomas Cook"},{id:"aviation",label:"Aviation & Transport",eg:"IndiGo, Air India, SpiceJet"}]},
+  {id:"retail",label:"Retail & Quick Commerce",domains:[{id:"organized_retail",label:"Organised Retail",eg:"Reliance Retail, Shoppers Stop, Lifestyle"},{id:"quick_commerce",label:"Quick Commerce",eg:"Blinkit, Swiggy Instamart, Zepto"},{id:"retail_tech",label:"Retail Tech",eg:"Increff, SnapBizz, Nobilom"}]},
+];
+
+const NODES=[
+  {id:"enterprise_sales",label:"Enterprise / Corporate Sales",subclass_id:"new_account_acquisition",subclass_label:"I win new clients",type:"generic",sens:0.55,specInd:null,tier:3,clabel:"Large enterprise / corporate deals",cdesc:"Long cycles, senior stakeholders, high-value contracts",titles:"Enterprise AE, Corporate Sales Manager, Sales Executive",free:false},
+  {id:"inside_sales",label:"Inside Sales",subclass_id:"new_account_acquisition",subclass_label:"I win new clients",type:"generic",sens:0.55,specInd:null,tier:3,clabel:"Inside sales / SMB",cdesc:"Shorter cycles, higher volume, phone or digital-led",titles:"Inside Sales Manager, SMB AE, Sales Development Lead",free:false},
+  {id:"field_sales",label:"Field Sales",subclass_id:"new_account_acquisition",subclass_label:"I win new clients",type:"generic",sens:0.28,specInd:null,tier:2,clabel:"On-ground / territory sales",cdesc:"Physical coverage, distributor or outlet visits",titles:"Territory Sales Manager, Area Sales Manager, Field Sales Executive",free:false},
+  {id:"business_development",label:"Business Development",subclass_id:"new_account_acquisition",subclass_label:"I win new clients",type:"generic",sens:0.6,specInd:null,tier:3,clabel:"New markets & business development",cdesc:"Creating new territories, entering new segments",titles:"BDM, Business Development Manager, Market Development Manager",free:false},
+  {id:"med_rep",label:"Medical Representative / Specialty Sales",subclass_id:"new_account_acquisition",subclass_label:"I win new clients",type:"specific",sens:0.05,specInd:"pharma_healthcare",tier:1,clabel:"Medical Representative / Specialty Sales",cdesc:"Detailing to doctors, hospital sales, prescription-driven",titles:"Medical Representative, MR, Senior MR",free:false},
+  {id:"sdr_bdr",label:"SDR / BDR",subclass_id:"new_account_acquisition",subclass_label:"I win new clients",type:"specific",sens:0.4,specInd:"saas_tech",tier:1,clabel:"SDR / BDR - pipeline generation",cdesc:"Outbound prospecting, lead qualification, pipeline building",titles:"SDR, BDR, Sales Development Representative",free:false},
+  {id:"admissions_counsellor",label:"Admissions Counsellor",subclass_id:"new_account_acquisition",subclass_label:"I win new clients",type:"specific",sens:0.15,specInd:"edtech",tier:1,clabel:"Admissions & student counselling",cdesc:"Converting leads to enrolments, counselling prospective students",titles:"Admissions Counsellor, Academic Counsellor, Student Success Manager",free:false},
+  {id:"property_sales",label:"Property Sales",subclass_id:"new_account_acquisition",subclass_label:"I win new clients",type:"specific",sens:0.08,specInd:"real_estate",tier:1,clabel:"Property sales & leasing",cdesc:"Residential or commercial property sales",titles:"Property Sales Manager, Leasing Manager, Real Estate Sales Manager",free:false},
+  {id:"loan_insurance_sales",label:"Loan / Insurance Sales",subclass_id:"new_account_acquisition",subclass_label:"I win new clients",type:"specific",sens:0.1,specInd:"bfsi",tier:1,clabel:"Loan / Insurance product sales",cdesc:"Direct selling of financial products \u2014 loans, policies",titles:"Loan Sales Officer, Insurance Sales Manager, DSA Manager",free:false},
+  {id:"agri_sales",label:"Agri / Rural Sales",subclass_id:"new_account_acquisition",subclass_label:"I win new clients",type:"specific",sens:0.12,specInd:"agri_food_tech",tier:1,clabel:"Agri / Rural sales",cdesc:"Selling to farmers, mandis, agri input dealers",titles:"Agri Sales Manager, Rural Sales Manager, Crop Science Sales",free:false},
+  {id:"account_management",label:"Account Management",subclass_id:"account_ownership",subclass_label:"I grow existing accounts",type:"generic",sens:0.65,specInd:null,tier:2,clabel:"Account management",cdesc:"Owning relationships with existing clients, upsell and renewal",titles:"Account Manager, KAM, Strategic Account Manager",free:false},
+  {id:"partnerships",label:"Partnerships / Alliances",subclass_id:"account_ownership",subclass_label:"I grow existing accounts",type:"generic",sens:0.6,specInd:null,tier:2,clabel:"Partnerships & alliances",cdesc:"Managing partner or ecosystem relationships for indirect revenue",titles:"Alliance Manager, Partner Manager, Ecosystem BD",free:false},
+  {id:"wealth_rm",label:"Wealth / Relationship Manager",subclass_id:"account_ownership",subclass_label:"I grow existing accounts",type:"specific",sens:0.1,specInd:"bfsi",tier:1,clabel:"Relationship Manager / Wealth Manager",cdesc:"Managing HNI or institutional client portfolios",titles:"Relationship Manager, Wealth Manager, Private Banker",free:false},
+  {id:"kam_trade",label:"KAM - Trade",subclass_id:"account_ownership",subclass_label:"I grow existing accounts",type:"specific",sens:0.3,specInd:"fmcg",tier:2,clabel:"Key Account Management - trade",cdesc:"Managing large retail chains or industrial key accounts",titles:"KAM Modern Trade, Key Account Head, National Account Manager",free:false},
+  {id:"customer_success",label:"Customer Success",subclass_id:"account_ownership",subclass_label:"I grow existing accounts",type:"generic",sens:0.6,specInd:null,tier:1,clabel:"Customer success management",cdesc:"Adoption, retention, renewal ownership and expansion of existing accounts",titles:"Customer Success Manager, Enterprise CSM, Strategic CSM",free:false},
+  {id:"strategic_accounts",label:"Strategic / Global Accounts",subclass_id:"account_ownership",subclass_label:"I grow existing accounts",type:"generic",sens:0.55,specInd:null,tier:2,clabel:"Strategic or global account management",cdesc:"Managing 1-5 high-value global or national accounts with deep executive relationships",titles:"Global Account Director, Strategic Account Director, Global Client Partner",free:false},
+  {id:"channel_sales",label:"Channel Sales",subclass_id:"partner_channel",subclass_label:"I sell through partners or channels",type:"generic",sens:0.38,specInd:null,tier:2,clabel:"Channel / distributor management",cdesc:"Managing resellers, distributors, or retail chains",titles:"Channel Sales Manager, Distributor Manager, Channel Head",free:false},
+  {id:"ecomm_marketplace",label:"E-Commerce / Marketplace Sales",subclass_id:"partner_channel",subclass_label:"I sell through partners or channels",type:"generic",sens:0.42,specInd:null,tier:1,clabel:"Marketplace / e-commerce sales",cdesc:"Seller acquisition or category growth on platforms",titles:"Key Account Manager - Amazon, Marketplace Manager, Seller Success Manager",free:false},
+  {id:"franchise_sales",label:"Franchise Sales",subclass_id:"partner_channel",subclass_label:"I sell through partners or channels",type:"generic",sens:0.3,specInd:null,tier:2,clabel:"Franchise development",cdesc:"Recruiting and managing franchise partners",titles:"Franchise Sales Manager, Franchise Development Manager, Franchise Business Manager",free:false},
+  {id:"cloud_channel",label:"Cloud / Hyperscaler Channel",subclass_id:"partner_channel",subclass_label:"I sell through partners or channels",type:"specific",sens:0.25,specInd:"saas_tech",tier:2,clabel:"Cloud / hyperscaler channel",cdesc:"Managing AWS, Azure, GCP or SI partner ecosystems",titles:"Cloud Alliance Manager, Hyperscaler Partner Lead, AWS Partner Manager",free:false},
+  {id:"merchant_acquisition",label:"Merchant / Seller Acquisition",subclass_id:"partner_channel",subclass_label:"I sell through partners or channels",type:"specific",sens:0.35,specInd:"consumer_internet",tier:1,clabel:"Merchant or seller acquisition",cdesc:"Acquiring and onboarding merchants, restaurants, or sellers onto a platform",titles:"Merchant Acquisition Manager, Restaurant Acquisition Manager, Seller Acquisition",free:false},
+  {id:"presales",label:"Pre-Sales / Solutioning",subclass_id:"technical_solutioning",subclass_label:"I support the sales process - solutioning",type:"generic",sens:0.5,specInd:null,tier:1,clabel:"Pre-sales & solutioning",cdesc:"Technical demos, RFP responses, solution design",titles:"Pre-Sales Consultant, Solution Engineer, Solutions Architect",free:false},
+  {id:"sales_engineering",label:"Sales Engineering",subclass_id:"technical_solutioning",subclass_label:"I support the sales process - solutioning",type:"generic",sens:0.45,specInd:null,tier:1,clabel:"Sales engineering & technical architecture",cdesc:"Deep technical validation, POCs, integration consulting, solution architecture",titles:"Sales Engineer, Solutions Engineer, Solutions Architect",free:false},
+  {id:"sales_ops",label:"Sales Operations",subclass_id:"infrastructure_leadership",subclass_label:"I support the sales process - operations & leadership",type:"generic",sens:0.9,specInd:null,tier:1,clabel:"Sales operations",cdesc:"CRM, pipeline management, reporting and process",titles:"Sales Ops Manager, Deal Desk Manager, Sales Operations Lead",free:true},
+  {id:"rev_ops",label:"Revenue Operations",subclass_id:"infrastructure_leadership",subclass_label:"I support the sales process - operations & leadership",type:"generic",sens:0.88,specInd:null,tier:1,clabel:"Revenue operations",cdesc:"Cross-functional revenue infrastructure, GTM strategy",titles:"RevOps Lead, GTM Ops Manager, Revenue Operations Manager",free:true},
+  {id:"sales_enablement",label:"Sales Enablement",subclass_id:"infrastructure_leadership",subclass_label:"I support the sales process - operations & leadership",type:"generic",sens:0.85,specInd:null,tier:1,clabel:"Sales enablement & training",cdesc:"Coaching, playbooks, onboarding the sales team",titles:"Sales Enablement Manager, Sales Trainer, Learning & Enablement Lead",free:true},
+  {id:"sales_leadership",label:"Sales Leadership",subclass_id:"infrastructure_leadership",subclass_label:"I support the sales process - operations & leadership",type:"generic",sens:0.75,specInd:null,tier:1,clabel:"Sales leadership",cdesc:"VP Sales, Sales Head, CSO, National Sales Manager",titles:"VP Sales, Head of Sales, Sales Director",free:false},
+  {id:"gtm_strategy",label:"GTM Strategy / Commercial Strategy",subclass_id:"strategy_consulting_sales",subclass_label:"I came from consulting or strategy into Sales",type:"generic",sens:0.6,specInd:null,tier:2,clabel:"Strategy-to-Sales / GTM Strategy",cdesc:"Commercial strategy, market entry, GTM planning",titles:"GTM Lead, Commercial Strategy Manager, Market Entry Lead",free:false},
+  {id:"b2g_sales",label:"B2G / Government Sales",subclass_id:"strategy_consulting_sales",subclass_label:"I came from consulting or strategy into Sales",type:"specific",sens:0.05,specInd:"govt_psu_defence",tier:1,clabel:"Government & public sector sales",cdesc:"Tenders, PSU relationships, government accounts",titles:"B2G Sales Manager, Public Sector Head, Govt Accounts Manager",free:false},
+  {id:"category_commercial",label:"Category & Commercial Growth",subclass_id:"commercial_excellence",subclass_label:"I work in commercial / category / trade marketing",type:"generic",sens:0.4,specInd:null,tier:2,clabel:"Category growth / commercial excellence",cdesc:"Category management, trade marketing, revenue management \u2014 sits between sales and marketing",titles:"Category Manager, Commercial Excellence Manager, Trade Marketing Manager",free:false},
+];
+
+const SENIORITY=[
+  {id:"senior_ic",label:"Senior Individual Contributor",sub:"4-9 years experience",eg:"Senior AE, Principal AE, Staff Sales Engineer",yoe_min:4,yoe_max:9},
+  {id:"manager",label:"Manager / Senior Manager",sub:"5-10 years experience",eg:"Sales Manager, Senior Sales Manager, Area Manager",yoe_min:5,yoe_max:10},
+  {id:"head_ad",label:"Head / Associate Director",sub:"10-15 years experience",eg:"Sales Head, Area Head, Associate Director",yoe_min:10,yoe_max:15},
+  {id:"director",label:"Director",sub:"12-18 years experience",eg:"Director Sales, Director BD, Sales Director",yoe_min:12,yoe_max:18},
+  {id:"vp",label:"VP / Senior Director",sub:"15-22 years experience",eg:"VP Sales, Senior Director Sales, VP BD",yoe_min:15,yoe_max:22},
+  {id:"cxo",label:"CXO / President",sub:"20-35 years experience",eg:"CSO, CRO, Chief Revenue Officer",yoe_min:20,yoe_max:35},
+];
+
+const IND_ADJ={
+  fmcg:{fmcg:"S",bfsi:"D",fintech:"D",saas_tech:"D",it_services:"D",industrial_manufacturing:"A",pharma_healthcare:"A",edtech:"D",real_estate:"D",consumer_internet:"D",telecom:"D",media_entertainment:"D",logistics_supply_chain:"D",staffing_hr_tech:"D",professional_services:"D",agri_food_tech:"A",govt_psu_defence:"D",hospitality_travel:"A",retail:"A"},
+  bfsi:{fmcg:"D",bfsi:"S",fintech:"A",saas_tech:"D",it_services:"D",industrial_manufacturing:"D",pharma_healthcare:"D",edtech:"D",real_estate:"A",consumer_internet:"D",telecom:"D",media_entertainment:"D",logistics_supply_chain:"D",staffing_hr_tech:"D",professional_services:"A",agri_food_tech:"D",govt_psu_defence:"D",hospitality_travel:"D",retail:"D"},
+  fintech:{fmcg:"D",bfsi:"A",fintech:"S",saas_tech:"A",it_services:"D",industrial_manufacturing:"D",pharma_healthcare:"D",edtech:"D",real_estate:"D",consumer_internet:"A",telecom:"D",media_entertainment:"D",logistics_supply_chain:"D",staffing_hr_tech:"D",professional_services:"D",agri_food_tech:"D",govt_psu_defence:"D",hospitality_travel:"D",retail:"D"},
+  saas_tech:{fmcg:"D",bfsi:"D",fintech:"A",saas_tech:"S",it_services:"A",industrial_manufacturing:"D",pharma_healthcare:"D",edtech:"A",real_estate:"D",consumer_internet:"A",telecom:"A",media_entertainment:"A",logistics_supply_chain:"D",staffing_hr_tech:"A",professional_services:"A",agri_food_tech:"D",govt_psu_defence:"D",hospitality_travel:"D",retail:"D"},
+  it_services:{fmcg:"D",bfsi:"D",fintech:"D",saas_tech:"A",it_services:"S",industrial_manufacturing:"D",pharma_healthcare:"D",edtech:"A",real_estate:"D",consumer_internet:"D",telecom:"A",media_entertainment:"D",logistics_supply_chain:"D",staffing_hr_tech:"D",professional_services:"D",agri_food_tech:"D",govt_psu_defence:"D",hospitality_travel:"D",retail:"D"},
+  industrial_manufacturing:{fmcg:"A",bfsi:"D",fintech:"D",saas_tech:"D",it_services:"D",industrial_manufacturing:"S",pharma_healthcare:"D",edtech:"D",real_estate:"A",consumer_internet:"D",telecom:"A",media_entertainment:"D",logistics_supply_chain:"A",staffing_hr_tech:"D",professional_services:"D",agri_food_tech:"D",govt_psu_defence:"A",hospitality_travel:"D",retail:"D"},
+  pharma_healthcare:{fmcg:"A",bfsi:"D",fintech:"D",saas_tech:"D",it_services:"D",industrial_manufacturing:"D",pharma_healthcare:"S",edtech:"D",real_estate:"D",consumer_internet:"D",telecom:"D",media_entertainment:"D",logistics_supply_chain:"D",staffing_hr_tech:"D",professional_services:"D",agri_food_tech:"D",govt_psu_defence:"D",hospitality_travel:"D",retail:"D"},
+  edtech:{fmcg:"D",bfsi:"D",fintech:"D",saas_tech:"A",it_services:"A",industrial_manufacturing:"D",pharma_healthcare:"D",edtech:"S",real_estate:"D",consumer_internet:"A",telecom:"D",media_entertainment:"D",logistics_supply_chain:"D",staffing_hr_tech:"D",professional_services:"D",agri_food_tech:"D",govt_psu_defence:"D",hospitality_travel:"D",retail:"D"},
+  real_estate:{fmcg:"D",bfsi:"A",fintech:"D",saas_tech:"D",it_services:"D",industrial_manufacturing:"A",pharma_healthcare:"D",edtech:"D",real_estate:"S",consumer_internet:"D",telecom:"D",media_entertainment:"D",logistics_supply_chain:"D",staffing_hr_tech:"D",professional_services:"D",agri_food_tech:"D",govt_psu_defence:"D",hospitality_travel:"D",retail:"D"},
+  consumer_internet:{fmcg:"D",bfsi:"D",fintech:"A",saas_tech:"A",it_services:"D",industrial_manufacturing:"D",pharma_healthcare:"D",edtech:"A",real_estate:"D",consumer_internet:"S",telecom:"D",media_entertainment:"A",logistics_supply_chain:"D",staffing_hr_tech:"D",professional_services:"D",agri_food_tech:"D",govt_psu_defence:"D",hospitality_travel:"A",retail:"A"},
+  telecom:{fmcg:"D",bfsi:"D",fintech:"D",saas_tech:"A",it_services:"A",industrial_manufacturing:"A",pharma_healthcare:"D",edtech:"D",real_estate:"D",consumer_internet:"D",telecom:"S",media_entertainment:"D",logistics_supply_chain:"D",staffing_hr_tech:"D",professional_services:"D",agri_food_tech:"D",govt_psu_defence:"D",hospitality_travel:"D",retail:"D"},
+  media_entertainment:{fmcg:"D",bfsi:"D",fintech:"D",saas_tech:"A",it_services:"D",industrial_manufacturing:"D",pharma_healthcare:"D",edtech:"D",real_estate:"D",consumer_internet:"A",telecom:"D",media_entertainment:"S",logistics_supply_chain:"D",staffing_hr_tech:"D",professional_services:"D",agri_food_tech:"D",govt_psu_defence:"D",hospitality_travel:"D",retail:"D"},
+  logistics_supply_chain:{fmcg:"D",bfsi:"D",fintech:"D",saas_tech:"D",it_services:"D",industrial_manufacturing:"A",pharma_healthcare:"D",edtech:"D",real_estate:"D",consumer_internet:"D",telecom:"D",media_entertainment:"D",logistics_supply_chain:"S",staffing_hr_tech:"D",professional_services:"D",agri_food_tech:"D",govt_psu_defence:"D",hospitality_travel:"D",retail:"D"},
+  staffing_hr_tech:{fmcg:"D",bfsi:"D",fintech:"D",saas_tech:"A",it_services:"D",industrial_manufacturing:"D",pharma_healthcare:"D",edtech:"D",real_estate:"D",consumer_internet:"D",telecom:"D",media_entertainment:"D",logistics_supply_chain:"D",staffing_hr_tech:"S",professional_services:"D",agri_food_tech:"D",govt_psu_defence:"D",hospitality_travel:"D",retail:"D"},
+  professional_services:{fmcg:"D",bfsi:"A",fintech:"D",saas_tech:"A",it_services:"D",industrial_manufacturing:"D",pharma_healthcare:"D",edtech:"D",real_estate:"D",consumer_internet:"D",telecom:"D",media_entertainment:"D",logistics_supply_chain:"D",staffing_hr_tech:"D",professional_services:"S",agri_food_tech:"D",govt_psu_defence:"D",hospitality_travel:"D",retail:"D"},
+  agri_food_tech:{fmcg:"A",bfsi:"D",fintech:"D",saas_tech:"D",it_services:"D",industrial_manufacturing:"D",pharma_healthcare:"D",edtech:"D",real_estate:"D",consumer_internet:"D",telecom:"D",media_entertainment:"D",logistics_supply_chain:"D",staffing_hr_tech:"D",professional_services:"D",agri_food_tech:"S",govt_psu_defence:"D",hospitality_travel:"D",retail:"D"},
+  govt_psu_defence:{fmcg:"D",bfsi:"D",fintech:"D",saas_tech:"D",it_services:"D",industrial_manufacturing:"A",pharma_healthcare:"D",edtech:"D",real_estate:"D",consumer_internet:"D",telecom:"D",media_entertainment:"D",logistics_supply_chain:"D",staffing_hr_tech:"D",professional_services:"D",agri_food_tech:"D",govt_psu_defence:"S",hospitality_travel:"D",retail:"D"},
+  hospitality_travel:{fmcg:"A",bfsi:"D",fintech:"D",saas_tech:"D",it_services:"D",industrial_manufacturing:"D",pharma_healthcare:"D",edtech:"D",real_estate:"D",consumer_internet:"A",telecom:"D",media_entertainment:"D",logistics_supply_chain:"D",staffing_hr_tech:"D",professional_services:"D",agri_food_tech:"D",govt_psu_defence:"D",hospitality_travel:"S",retail:"D"},
+  retail:{fmcg:"A",bfsi:"D",fintech:"D",saas_tech:"D",it_services:"D",industrial_manufacturing:"D",pharma_healthcare:"D",edtech:"D",real_estate:"D",consumer_internet:"A",telecom:"D",media_entertainment:"D",logistics_supply_chain:"D",staffing_hr_tech:"D",professional_services:"D",agri_food_tech:"D",govt_psu_defence:"D",hospitality_travel:"D",retail:"S"},
+};
+
+const DOMAIN_ADJ=[
+  {ind:"fmcg",a:"fmcg_cpg",b:"beauty_personal_care",score:0.8,rationale:"Adjacent buyer, similar modern trade and GT sales motion"},
+  {ind:"fmcg",a:"fmcg_cpg",b:"d2c",score:0.7,rationale:"D2C brand sales differs in digital-first motion but buyer overlap exists"},
+  {ind:"bfsi",a:"banking_lending",b:"insurance",score:0.8,rationale:"Bancassurance overlap"},
+  {ind:"bfsi",a:"banking_lending",b:"investments_wealth",score:0.8,rationale:"RM skill set transfers \u2014 same HNI relationship context"},
+  {ind:"bfsi",a:"banking_lending",b:"nbfc_microfinance",score:0.8,rationale:"Lending motion is same \u2014 product and regulatory context similar"},
+  {ind:"bfsi",a:"brokerages",b:"investments_wealth",score:0.8,rationale:"Same HNI / retail investor buyer"},
+  {ind:"saas_tech",a:"saas_software",b:"ai_ml_platforms",score:0.8,rationale:"Same GTM, same buyer (CTO/CPO)"},
+  {ind:"saas_tech",a:"saas_software",b:"data_analytics",score:0.8,rationale:"Adjacent domain \u2014 overlapping enterprise buyer"},
+  {ind:"saas_tech",a:"cybersecurity",b:"cloud_infra",score:0.8,rationale:"Same CISO/IT buyer, similar enterprise security motion"},
+  {ind:"it_services",a:"it_outsourcing",b:"it_consulting",score:0.8,rationale:"Same SI ecosystem, similar enterprise sales motion"},
+  {ind:"industrial_manufacturing",a:"industrial_machinery",b:"automotive",score:0.8,rationale:"B2B manufacturing buyer overlap"},
+  {ind:"industrial_manufacturing",a:"energy_power",b:"industrial_machinery",score:0.7,rationale:"Capital equipment and project sales overlap"},
+  {ind:"industrial_manufacturing",a:"defence_aerospace",b:"industrial_machinery",score:0.6,rationale:"Different procurement \u2014 defence is govt-driven"},
+  {ind:"pharma_healthcare",a:"pharma_rx",b:"medtech_devices",score:0.6,rationale:"Different buyer \u2014 doctor vs hospital admin"},
+  {ind:"pharma_healthcare",a:"pharma_rx",b:"diagnostics_labs",score:0.7,rationale:"Same doctor/hospital relationship context"},
+  {ind:"pharma_healthcare",a:"health_tech",b:"diagnostics_labs",score:0.7,rationale:"Both digital health \u2014 similar B2B hospital/clinic buyer"},
+  {ind:"edtech",a:"edtech_platforms",b:"skilling_vocational",score:0.6,rationale:"Similar inside sales motion, different buyer (B2C vs B2B)"},
+  {ind:"edtech",a:"corporate_ld",b:"skilling_vocational",score:0.8,rationale:"Both B2B enterprise L&D buyer"},
+  {ind:"real_estate",a:"residential_re",b:"commercial_re",score:0.6,rationale:"Different buyer \u2014 individual vs institutional"},
+  {ind:"real_estate",a:"proptech",b:"residential_re",score:0.7,rationale:"PropTech sells into same RE buyer context"},
+  {ind:"real_estate",a:"coworking_managed",b:"commercial_re",score:0.8,rationale:"Same enterprise real estate buyer"},
+  {ind:"consumer_internet",a:"ecomm_marketplace_ci",b:"consumer_apps",score:0.7,rationale:"Same digital growth motion"},
+  {ind:"telecom",a:"telecom_infra",b:"networking_hardware",score:0.8,rationale:"Both B2B enterprise, similar solution-selling motion"},
+  {ind:"telecom",a:"satellite_connectivity",b:"telecom_infra",score:0.7,rationale:"Emerging connectivity \u2014 adjacent to traditional infra sales"},
+  {ind:"media_entertainment",a:"broadcasting_ott",b:"adtech_programmatic",score:0.7,rationale:"Same media buyer \u2014 ad sales overlap"},
+  {ind:"logistics_supply_chain",a:"last_mile_logistics",b:"b2b_freight",score:0.7,rationale:"Both B2B logistics sales \u2014 different segment, similar motion"},
+  {ind:"agri_food_tech",a:"agri_inputs",b:"agri_supply_chain",score:0.7,rationale:"Same rural / farmer-facing sales motion"},
+  {ind:"industrial_manufacturing",a:"industrial_machinery",b:"construction_materials",score:0.7,rationale:"B2B project and construction buyer overlap"},
+  {ind:"hospitality_travel",a:"hotels_hospitality",b:"travel_ota",score:0.7,rationale:"Same leisure/corporate travel buyer"},
+  {ind:"retail",a:"organized_retail",b:"quick_commerce",score:0.7,rationale:"Both retail end-consumer context"},
+];
+
+const LOCKED_NODES=["med_rep", "wealth_rm", "loan_insurance_sales", "admissions_counsellor", "property_sales", "b2g_sales", "agri_sales", "merchant_acquisition"];
+const FREE_NODES=["sales_ops", "rev_ops", "sales_enablement"];
+var RELEVANCE = {
+  fmcg: ['enterprise_sales','field_sales','business_development','account_management','strategic_accounts','kam_trade','channel_sales','ecomm_marketplace','franchise_sales','customer_success','presales','sales_ops','rev_ops','sales_enablement','sales_leadership','category_commercial'],
+  bfsi: ['enterprise_sales','inside_sales','business_development','account_management','strategic_accounts','wealth_rm','loan_insurance_sales','partnerships','customer_success','presales','sales_ops','rev_ops','sales_enablement','sales_leadership'],
+  fintech: ['enterprise_sales','inside_sales','business_development','account_management','strategic_accounts','wealth_rm','loan_insurance_sales','partnerships','customer_success','presales','sales_ops','rev_ops','sales_enablement','sales_leadership'],
+  saas_tech: ['enterprise_sales','inside_sales','field_sales','business_development','account_management','strategic_accounts','sdr_bdr','partnerships','cloud_channel','customer_success','presales','sales_engineering','sales_ops','rev_ops','sales_enablement','sales_leadership'],
+  it_services: ['enterprise_sales','inside_sales','business_development','account_management','strategic_accounts','cloud_channel','partnerships','customer_success','presales','sales_engineering','sales_ops','rev_ops','sales_enablement','sales_leadership'],
+  industrial_manufacturing: ['enterprise_sales','field_sales','business_development','account_management','strategic_accounts','kam_trade','channel_sales','franchise_sales','b2g_sales','presales','sales_engineering','sales_ops','sales_leadership','category_commercial'],
+  pharma_healthcare: ['med_rep','field_sales','enterprise_sales','business_development','account_management','strategic_accounts','channel_sales','customer_success','presales','sales_ops','sales_leadership'],
+  edtech: ['admissions_counsellor','inside_sales','enterprise_sales','business_development','account_management','partnerships','customer_success','sales_ops','rev_ops','sales_enablement','sales_leadership'],
+  real_estate: ['property_sales','enterprise_sales','business_development','account_management','strategic_accounts','channel_sales','franchise_sales','partnerships','sales_ops','sales_leadership'],
+  consumer_internet: ['enterprise_sales','inside_sales','business_development','account_management','partnerships','ecomm_marketplace','merchant_acquisition','customer_success','sales_ops','rev_ops','sales_enablement','sales_leadership'],
+  telecom: ['enterprise_sales','inside_sales','field_sales','business_development','account_management','strategic_accounts','channel_sales','b2g_sales','presales','sales_engineering','sales_ops','sales_leadership'],
+  media_entertainment: ['enterprise_sales','inside_sales','business_development','account_management','strategic_accounts','partnerships','ecomm_marketplace','sales_ops','rev_ops','sales_leadership'],
+  logistics_supply_chain: ['enterprise_sales','inside_sales','field_sales','business_development','account_management','strategic_accounts','channel_sales','customer_success','sales_ops','rev_ops','sales_leadership'],
+  staffing_hr_tech: ['enterprise_sales','inside_sales','business_development','account_management','strategic_accounts','partnerships','customer_success','presales','sales_ops','rev_ops','sales_enablement','sales_leadership'],
+  professional_services: ['enterprise_sales','business_development','account_management','strategic_accounts','partnerships','customer_success','gtm_strategy','sales_ops','sales_leadership'],
+  agri_food_tech: ['agri_sales','field_sales','enterprise_sales','business_development','account_management','channel_sales','franchise_sales','sales_ops','sales_leadership'],
+  govt_psu_defence: ['b2g_sales','enterprise_sales','business_development','account_management','strategic_accounts','presales','sales_engineering','sales_ops','sales_leadership'],
+  hospitality_travel: ['enterprise_sales','inside_sales','field_sales','business_development','account_management','partnerships','channel_sales','franchise_sales','customer_success','sales_ops','sales_leadership'],
+  retail: ['enterprise_sales','field_sales','business_development','account_management','kam_trade','channel_sales','ecomm_marketplace','franchise_sales','merchant_acquisition','category_commercial','sales_ops','sales_leadership'],
+};
+
+function getVisibleNodes(indId) {
+  var allowed = RELEVANCE[indId] || NODES.map(function(n){ return n.id; });
+  return NODES.filter(function(n) {
+    if (allowed.indexOf(n.id) < 0) return false;
+    if (n.specInd && n.specInd !== indId) return false;
+    return true;
+  });
+}
+
+function getGroupedNodes(indId) {
+  var visible = getVisibleNodes(indId);
+  var groups = {};
+  visible.forEach(function(n) {
+    var gid = n.subclass_id;
+    if (!groups[gid]) groups[gid] = {label: n.subclass_label, nodes: []};
+    groups[gid].nodes.push(n);
+  });
+  return groups;
+}
+
+function getSpecLabel(node) {
+  if (!node.specInd) return '';
+  var ind = INDUSTRIES.find(function(i){ return i.id === node.specInd; });
+  return ind ? ind.label.split(' ')[0] : node.specInd;
+}
+
+var step = 0, sel = {};
+
+function getSel() {
+  if (step === 0) return sel.ind;
+  if (step === 1) return sel.dom;
+  if (step === 2) return sel.node;
+  if (step === 3) return sel.sen;
+  return true;
+}
+
+function render() {
+  for (var i = 0; i < 4; i++) {
+    var el = document.getElementById('sb' + i);
+    el.className = 'step' + (i === step ? ' active' : i < step ? ' done' : '');
+  }
+  document.getElementById('pf').style.width = ((step + 1) / 5 * 100) + '%';
+  document.getElementById('backBtn').style.display = step > 0 ? '' : 'none';
+  var nb = document.getElementById('nextBtn');
+  nb.disabled = !getSel();
+  nb.style.display = step < 4 ? '' : 'none';
+  if (step === 0) renderIndustry();
+  else if (step === 1) renderDomain();
+  else if (step === 2) renderNodes();
+  else if (step === 3) renderSeniority();
+  else renderSummary();
+}
+
+function pickInd(id) { sel.ind = id; sel.dom = null; sel.node = null; render(); }
+function pickDom(id) { sel.dom = id; render(); }
+function pickNode(id) { sel.node = id; render(); }
+function pickSen(id) { sel.sen = id; render(); }
+
+function renderIndustry() {
+  var opts = '';
+  INDUSTRIES.forEach(function(ind) {
+    var eg = ind.domains.slice(0,3).map(function(d){return d.eg.split(',')[0].trim();}).join(', ');
+    var cls = sel.ind === ind.id ? ' selected' : '';
+    opts += '<div class="opt' + cls + '" onclick="pickInd(\'' + ind.id + '\')">'
+      + '<div class="opt-label">' + ind.label + '</div>'
+      + '<div class="opt-eg">' + eg + '</div></div>';
+  });
+  document.getElementById('content').innerHTML =
+    '<div class="q">Which industry are you in?</div>'
+    + '<div class="qsub">Select the industry that best describes your current or most recent company.</div>'
+    + '<div class="options">' + opts + '</div>';
+}
+
+function renderDomain() {
+  var ind = INDUSTRIES.find(function(i){ return i.id === sel.ind; });
+  var opts = '';
+  ind.domains.forEach(function(d) {
+    var cls = sel.dom === d.id ? ' selected' : '';
+    var ctag = d.cross_tags ? '<span class="badge">Also: Consumer Internet</span>' : '';
+    opts += '<div class="opt' + cls + '" onclick="pickDom(\'' + d.id + '\')">'
+      + '<div class="opt-label">' + d.label + ctag + '</div>'
+      + '<div class="opt-eg">' + d.eg + '</div></div>';
+  });
+  document.getElementById('content').innerHTML =
+    '<div class="q">Which part of ' + ind.label + '?</div>'
+    + '<div class="qsub">This helps us match you to roles within the right sub-sector.</div>'
+    + '<div class="options">' + opts + '</div>';
+}
+
+function renderNodes() {
+  var ind = INDUSTRIES.find(function(i){ return i.id === sel.ind; });
+  var groups = getGroupedNodes(sel.ind);
+  var nodeCount = getVisibleNodes(sel.ind).length;
+  var html = '<div class="q">What best describes what you do?</div>'
+    + '<div class="qsub">Showing ' + nodeCount + ' roles relevant to ' + ind.label + '. Pick your primary role based on where your main KPI sits.</div>';
+  var gkeys = Object.keys(groups);
+  if (!gkeys.length) {
+    html += '<div style="color:var(--color-text-secondary);font-size:13px;padding:1rem">No roles found for this industry. Please go back and select a different industry.</div>';
+  }
+  gkeys.forEach(function(gid) {
+    var g = groups[gid];
+    if (!g.nodes.length) return;
+    var opts = '';
+    g.nodes.forEach(function(n) {
+      var cls = sel.node === n.id ? ' selected' : '';
+      var feat = n.specInd ? ' featured' : '';
+      var badge = n.specInd ? '<span class="badge">' + getSpecLabel(n) + '</span>' : '';
+      opts += '<div class="opt' + cls + feat + '" onclick="pickNode(\'' + n.id + '\')">'
+        + '<div class="opt-label">' + n.clabel + badge + '</div>'
+        + '<div class="opt-sub">' + n.cdesc + '</div>'
+        + '<div class="opt-eg">' + n.titles + '</div></div>';
+    });
+    html += '<div class="group-label">' + g.label + '</div><div class="options">' + opts + '</div>';
+  });
+  document.getElementById('content').innerHTML = html;
+}
+
+function renderSeniority() {
+  var opts = '';
+  SENIORITY.forEach(function(s) {
+    var cls = sel.sen === s.id ? ' selected' : '';
+    opts += '<div class="opt' + cls + '" onclick="pickSen(\'' + s.id + '\')">'
+      + '<div class="opt-label">' + s.label + '</div>'
+      + '<div class="opt-sub">' + s.sub + '</div>'
+      + '<div class="opt-eg">' + s.eg + '</div></div>';
+  });
+  document.getElementById('content').innerHTML =
+    '<div class="q">What is your seniority level?</div>'
+    + '<div class="qsub">Select your title band and enter your years of experience. Both signals are used for matching.</div>'
+    + '<div class="options">' + opts + '</div>'
+    + '<div style="margin-top:1rem">'
+    + '<label style="font-size:12px;color:#666;display:block;margin-bottom:6px">Years of experience (total)</label>'
+    + '<input type="number" id="yoeInput" min="0" max="40" placeholder="e.g. 12" '
+    + 'style="padding:8px 12px;border:1.5px solid #DDD;border-radius:8px;font-size:14px;width:160px" '
+    + 'value="' + (sel.yoe || '') + '" oninput="sel.yoe=this.value">'
+    + '</div>'
+    + '<div style="margin-top:1rem">'
+    + '<label style="font-size:12px;color:#666;display:block;margin-bottom:6px">Geography (optional)</label>'
+    + '<select id="geoInput" onchange="sel.geo=this.value" '
+    + 'style="padding:8px 12px;border:1.5px solid #DDD;border-radius:8px;font-size:13px;width:220px">'
+    + '<option value="">India (default)</option>'
+    + '<option value="us_na">US / North America</option>'
+    + '<option value="emea">EMEA</option>'
+    + '<option value="apac">APAC</option>'
+    + '<option value="me">Middle East</option>'
+    + '<option value="global">Global</option>'
+    + '</select></div>';
+}
+
+function renderSummary() {
+  var ind = INDUSTRIES.find(function(i){ return i.id === sel.ind; });
+  var dom = ind ? ind.domains.find(function(d){ return d.id === sel.dom; }) : null;
+  var node = NODES.find(function(n){ return n.id === sel.node; });
+  var sen = SENIORITY.find(function(s){ return s.id === sel.sen; });
+  document.getElementById('nav').style.display = 'none';
+  document.getElementById('content').innerHTML =
+    '<div class="q" style="margin-bottom:.75rem">Your profile confirmed</div>'
+    + '<div class="summary">'
+    + '<div class="sum-row"><span class="sum-lbl">Industry</span><span class="sum-val">' + (ind ? ind.label : '-') + '</span></div>'
+    + '<div class="sum-row"><span class="sum-lbl">Domain</span><span class="sum-val">' + (dom ? dom.label : '-') + '</span></div>'
+    + '<div class="sum-row"><span class="sum-lbl">Role</span><span class="sum-val">' + (node ? node.label : '-')
+    + '<span class="sum-node">' + (node ? node.id : '') + '</span></span></div>'
+    + '<div class="sum-row"><span class="sum-lbl">Seniority</span><span class="sum-val">' + (sen ? sen.label : '-')
+    + (sel.yoe ? ' <span style="font-size:11px;color:#888">' + sel.yoe + ' yrs exp</span>' : '') + '</span></div>'
+    + (sel.geo ? '<div class="sum-row"><span class="sum-lbl">Geography</span><span class="sum-val">' + sel.geo + '</span></div>' : '')
+    + '</div>'
+    + '<div class="confirm-note">This is how we match jobs to your profile. You can update this anytime from your profile settings.</div>'
+    + '<div style="display:flex;gap:8px">'
+    + '<button class="btn" onclick="goBack()">Edit</button>'
+    + '<button class="btn primary" onclick="alert(\'Profile saved!\')">Confirm &amp; continue</button></div>';
+}
+
+function goNext() { if (!getSel()) return; step = Math.min(4, step + 1); render(); }
+function goBack() { step = Math.max(0, step - 1); document.getElementById('nav').style.display = 'flex'; render(); }
+
+render();
+
+</script>
+</body>
+</html>
