@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IIMJobs — Sales Role Classification</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#F8F9FA;color:#1A1A1A;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem}
+.container{width:100%;max-width:720px}
+.header{margin-bottom:2rem;text-align:center}
+.logo{font-size:14px;font-weight:700;color:#185FA5;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.5rem}
+.header h1{font-size:22px;font-weight:600;color:#1A1A1A;margin-bottom:.4rem}
+.header p{font-size:13px;color:#666;line-height:1.6}
+.card{background:#fff;border-radius:12px;border:1px solid #E5E5E5;padding:1.75rem;margin-bottom:1rem}
+.step-bar{display:flex;gap:0;margin-bottom:1.75rem;border-bottom:1px solid #E5E5E5}
+.step{flex:1;text-align:center;padding:8px 4px 10px;font-size:11px;color:#999;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:default}
+.step.active{color:#185FA5;border-bottom-color:#185FA5;font-weight:600}
+.step.done{color:#1D9E75;border-bottom-color:#1D9E75}
+.step-num{font-size:10px;display:block;margin-bottom:2px;opacity:.7}
+.progress{height:3px;background:#EEE;border-radius:2px;margin-bottom:1.5rem;overflow:hidden}
+.progress-fill{height:100%;background:#185FA5;border-radius:2px;transition:width .35s ease}
+.q{font-size:16px;font-weight:600;color:#1A1A1A;margin-bottom:.35rem}
+.qsub{font-size:12px;color:#777;margin-bottom:1.25rem;line-height:1.6}
+.options{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.opt{background:#fff;border:1.5px solid #E5E5E5;border-radius:10px;padding:.75rem 1rem;cursor:pointer;transition:border-color .15s,background .15s}
+.opt:hover{border-color:#185FA5;background:#F0F6FF}
+.opt.selected{border-color:#185FA5;background:#EBF4FF}
+.opt.featured{border-color:#C5D8F5}
+.opt-label{font-size:13px;font-weight:600;color:#1A1A1A;margin-bottom:3px}
+.opt-sub{font-size:11px;color:#666;line-height:1.4;margin-bottom:2px}
+.opt-eg{font-size:10px;color:#999}
+.badge{display:inline-block;padding:1px 7px;border-radius:20px;font-size:10px;font-weight:600;background:#E6F1FB;color:#0C447C;margin-left:6px;vertical-align:middle}
+.group-label{font-size:10px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.06em;margin:1rem 0 6px}
+.group-label:first-child{margin-top:0}
+.nav{display:flex;gap:8px;margin-top:1.25rem}
+.btn{padding:9px 22px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;border:1.5px solid #DDD;background:#fff;color:#444;transition:all .15s}
+.btn:hover{background:#F5F5F5}
+.btn.primary{background:#185FA5;color:#fff;border-color:#185FA5}
+.btn.primary:hover{background:#0C447C}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.summary{background:#F8FBFF;border-radius:10px;border:1px solid #C5D8F5;padding:1.25rem;margin-bottom:1rem}
+.sum-row{display:flex;gap:12px;align-items:flex-start;padding:.4rem 0;border-bottom:1px solid #EEF3F9}
+.sum-row:last-child{border-bottom:none}
+.sum-lbl{font-size:11px;color:#888;min-width:80px;padding-top:1px}
+.sum-val{font-size:13px;font-weight:600;color:#1A1A1A;flex:1}
+.sum-node{font-size:10px;color:#AAA;font-family:monospace;margin-left:8px;font-weight:400}
+.confirm-note{font-size:12px;color:#888;line-height:1.6;margin-bottom:1rem}
+footer{text-align:center;font-size:11px;color:#BBB;margin-top:1.5rem;padding-bottom:1rem}
+@media(max-width:480px){.options{grid-template-columns:1fr}.container{padding:0}.card{border-radius:0;border-left:none;border-right:none}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">IIMJobs</div>
+    <h1>Tell us about your Sales role</h1>
+    <p>This takes 2 minutes and helps us match you to the right opportunities.</p>
+  </div>
+  <div class="card">
+    <div class="step-bar" id="stepBar">
+      <div class="step active" id="sb0"><span class="step-num">01</span>Industry</div>
+      <div class="step" id="sb1"><span class="step-num">02</span>Domain</div>
+      <div class="step" id="sb2"><span class="step-num">03</span>Your role</div>
+      <div class="step" id="sb3"><span class="step-num">04</span>Seniority</div>
+    </div>
+    <div class="progress"><div class="progress-fill" id="pf" style="width:10%"></div></div>
+    <div id="content"></div>
+    <div class="nav" id="nav">
+      <button class="btn" id="backBtn" onclick="goBack()" style="display:none">← Back</button>
+      <button class="btn primary" id="nextBtn" onclick="goNext()" disabled>Continue →</button>
+    </div>
+  </div>
+  <footer>IIMJobs · Premium Talent Platform · Confidential</footer>
+</div>
+<script>
+const INDUSTRIES=[
+  {id:"fmcg",label:"FMCG & Consumer Goods",sub:"Everyday products, retail brands",eg:"HUL, P&G, L'Oréal, ITC"},
+  {id:"bfsi",label:"Banking & Financial Services",sub:"Banks, insurance, investments",eg:"HDFC, Axis, LIC, Zerodha"},
+  {id:"fintech",label:"Fintech",sub:"Digital payments, lending, wealthtech",eg:"Razorpay, PhonePe, Groww"},
+  {id:"saas",label:"SaaS & Tech Products",sub:"Software products, AI/ML, cloud platforms",eg:"Salesforce, Freshworks, Zoho"},
+  {id:"itsvcs",label:"IT Services",sub:"Outsourcing, consulting, system integration",eg:"TCS, Infosys, Accenture"},
+  {id:"industrial",label:"Industrial & Manufacturing",sub:"Machinery, auto, chemicals",eg:"Thermax, Tata Motors, BASF"},
+  {id:"pharma",label:"Pharma & Healthcare",sub:"Pharma, medtech, hospital chains",eg:"Sun Pharma, Abbott, Apollo"},
+  {id:"edtech",label:"Education & Edtech",sub:"Online learning, skilling platforms",eg:"upGrad, Unacademy, NIIT"},
+  {id:"realestate",label:"Real Estate & EPC",sub:"Residential, commercial, infrastructure",eg:"DLF, L&T, Embassy"},
+  {id:"consumer",label:"Consumer Internet",sub:"Ecommerce, apps, content platforms",eg:"Flipkart, Swiggy, ShareChat"},
+  {id:"telecom",label:"Telecom & Networking",sub:"Operators, infrastructure, hardware",eg:"Airtel, Cisco, Ericsson"},
+];
+const DOMAINS={
+  fmcg:[{id:"cpg",label:"FMCG / CPG",eg:"HUL, ITC, P&G, Dabur"},{id:"beauty",label:"Beauty & Personal Care",eg:"L'Oréal, Marico, Nykaa"},{id:"fashion",label:"Fashion & Apparel",eg:"Zara, Myntra, Fabindia"},{id:"durables",label:"Consumer Durables",eg:"Samsung, LG, Havells"}],
+  bfsi:[{id:"banking",label:"Banking & Lending",eg:"HDFC, Axis, Kotak, SBI"},{id:"wealth",label:"Investments & Wealth",eg:"Zerodha, Mirae, ICICI Pru"},{id:"insurance",label:"Insurance",eg:"LIC, HDFC Life, Star Health"}],
+  fintech:[{id:"payments",label:"Payments",eg:"PhonePe, Razorpay, Paytm"},{id:"lending",label:"Lending Tech",eg:"Slice, KreditBee, Lendingkart"},{id:"wealthtech",label:"Wealthtech / Insurtech",eg:"Groww, Digit, Acko"}],
+  saas:[{id:"saasprod",label:"SaaS Software Products",eg:"Salesforce, Freshworks, Zoho"},{id:"aiml",label:"AI / ML Platforms",eg:"OpenAI, Sarvam, Yellow.ai"},{id:"data",label:"Data & Analytics",eg:"Databricks, Thoughtspot"}],
+  itsvcs:[{id:"outsource",label:"IT Services & Outsourcing",eg:"TCS, Infosys, Wipro, HCL"},{id:"itcons",label:"IT Consulting & Solutions",eg:"Accenture, Deloitte, Capgemini"}],
+  industrial:[{id:"machinery",label:"Industrial Machinery",eg:"Thermax, Cummins, ABB"},{id:"auto",label:"Automotive & Manufacturing",eg:"Tata Motors, Bosch, Maruti"},{id:"chemicals",label:"Industrial Chemicals",eg:"BASF, Pidilite, Asian Paints"}],
+  pharma:[{id:"rx",label:"Pharma / Generics",eg:"Sun Pharma, Cipla, Dr Reddy's"},{id:"medtech",label:"MedTech & Devices",eg:"Abbott, Stryker, Philips Health"},{id:"healthsvcs",label:"Healthcare Services",eg:"Apollo, Manipal, Narayana"}],
+  edtech:[{id:"platform",label:"Edtech Platforms",eg:"Byju's, Unacademy, upGrad"},{id:"skilling",label:"Skilling & Vocational",eg:"Josh Talks, Skill-Lync, NSDC"},{id:"edinfra",label:"Ed Infrastructure",eg:"NIIT, Manipal Global, Pearson"}],
+  realestate:[{id:"resi",label:"Residential Real Estate",eg:"DLF, Godrej, Lodha"},{id:"commercial",label:"Commercial Real Estate",eg:"Embassy, Brookfield, Prestige"},{id:"epc",label:"EPC & Infrastructure",eg:"L&T, Shapoorji, NCC"}],
+  consumer:[{id:"ecomm",label:"E-Commerce & Marketplace",eg:"Flipkart, Meesho, Amazon IN"},{id:"apps",label:"Consumer Apps & Services",eg:"Swiggy, Zomato, Urban Company"},{id:"social",label:"Social & Content",eg:"ShareChat, Dailyhunt, Moj"}],
+  telecom:[{id:"operators",label:"Telecom Operators",eg:"Airtel, Jio, Vi, BSNL"},{id:"infra",label:"Telecom Infrastructure",eg:"Ericsson, Nokia, Indus Towers"},{id:"networking",label:"Networking & Hardware",eg:"Cisco, Juniper, HPE Aruba"}],
+};
+function getNodes(ind){
+  const base=[
+    {group:"I win new clients",nodes:[
+      {id:"enterprise",label:"Large enterprise / corporate deals",sub:"Long cycles, senior stakeholders, high-value contracts",eg:"eg. selling ERP, IT infra, industrial equipment",nid:"enterprise_sales"},
+      {id:"inside",label:"Inside sales / SMB",sub:"Shorter cycles, higher volume, phone or digital-led",eg:"eg. SaaS mid-market, inside sales teams",nid:"inside_sales"},
+      {id:"field",label:"On-ground / territory sales",sub:"Physical coverage, distributor or outlet visits",eg:"eg. FMCG trade, Pharma field, Telecom B2B",nid:"field_sales"},
+      {id:"bd",label:"New markets & business development",sub:"Creating new territories, entering new segments",eg:"eg. market entry, new product launch, geographic expansion",nid:"business_development"},
+    ]},
+    {group:"I grow existing accounts",nodes:[
+      {id:"am",label:"Account management",sub:"Owning relationships with existing clients, upsell and renewal",eg:"eg. KAM, Strategic Account Manager, Client Partner",nid:"account_management"},
+      {id:"partner",label:"Partnerships & alliances",sub:"Managing partner or ecosystem relationships",eg:"eg. Alliance Manager, Partner Success, Ecosystem BD",nid:"partnerships"},
+    ]},
+    {group:"I sell through partners or channels",nodes:[
+      {id:"channel",label:"Channel / distributor management",sub:"Managing resellers, distributors, or retail chains",eg:"eg. Channel Sales Manager, Distributor Head",nid:"channel_sales"},
+      {id:"franchise",label:"Franchise development",sub:"Recruiting and managing franchise partners",eg:"eg. Franchise Sales, Franchise Business Manager",nid:"franchise_sales"},
+      {id:"ecomm",label:"Marketplace / e-commerce sales",sub:"Seller acquisition or category growth on platforms",eg:"eg. Key Account — Amazon/Flipkart, Seller Success",nid:"ecomm_marketplace"},
+    ]},
+    {group:"I support the sales process",nodes:[
+      {id:"presales",label:"Pre-sales & solutioning",sub:"Technical demos, RFP responses, solution design",eg:"eg. Solution Engineer, Presales Consultant, SA",nid:"presales"},
+      {id:"salesops",label:"Sales operations",sub:"CRM, pipeline management, reporting and process",eg:"eg. Sales Ops Manager, Deal Desk",nid:"sales_ops"},
+      {id:"revops",label:"Revenue operations",sub:"Cross-functional revenue infrastructure, GTM strategy",eg:"eg. RevOps Lead, GTM Ops Manager",nid:"rev_ops"},
+      {id:"enablement",label:"Sales enablement & training",sub:"Coaching, playbooks, onboarding the sales team",eg:"eg. Sales Enablement Manager, Sales Trainer",nid:"sales_enablement"},
+    ]},
+    {group:"I lead a sales team or function",nodes:[
+      {id:"leadership",label:"Sales leadership",sub:"VP Sales, Sales Head, CSO, National Sales Manager",eg:"eg. VP Sales, Head of Sales, Sales Director",nid:"sales_leadership"},
+    ]},
+    {group:"I came from consulting or strategy into Sales",nodes:[
+      {id:"strat_sales",label:"Strategy-to-Sales / GTM Strategy",sub:"Commercial strategy, market entry, GTM planning",eg:"eg. ex-MBB / Big4 in BD or commercial strategy role",nid:"business_development"},
+      {id:"b2g",label:"Government & public sector sales",sub:"Tenders, PSU relationships, government accounts",eg:"eg. B2G Sales Manager, Public Sector Head",nid:"b2g_sales"},
+    ]},
+  ];
+  if(ind==="pharma") base[0].nodes.unshift({id:"mr",label:"Medical Representative / Specialty Sales",sub:"Detailing to doctors, hospital sales, prescription-driven",eg:"eg. MR, Sr. MR, Specialty Sales, Hospital Sales",nid:"med_rep",feat:true});
+  if(ind==="bfsi"||ind==="fintech"){base[1].nodes.unshift({id:"rm",label:"Relationship Manager / Wealth Manager",sub:"Managing HNI or institutional client portfolios",eg:"eg. RM, Wealth Manager, Private Banker",nid:"wealth_rm",feat:true});base[0].nodes.push({id:"loansales",label:"Loan / Insurance product sales",sub:"Direct selling of financial products",eg:"eg. Loan Sales Officer, Insurance Sales Manager",nid:"loan_insurance_sales",feat:true});}
+  if(ind==="edtech") base[0].nodes.unshift({id:"admissions",label:"Admissions & student counselling",sub:"Converting leads to enrolments, counselling prospective students",eg:"eg. Admissions Counsellor, Student Success Manager",nid:"admissions_counsellor",feat:true});
+  if(ind==="realestate") base[0].nodes.unshift({id:"propsales",label:"Property sales & leasing",sub:"Residential or commercial property sales",eg:"eg. Property Sales Manager, Leasing Manager",nid:"property_sales",feat:true});
+  if(ind==="saas"||ind==="itsvcs"){base[0].nodes.push({id:"sdr",label:"SDR / BDR — pipeline generation",sub:"Outbound prospecting, lead qualification",eg:"eg. SDR, BDR, Sales Development Rep",nid:"sdr_bdr"});base[2].nodes.push({id:"cloud",label:"Cloud / hyperscaler channel",sub:"Managing AWS, Azure, GCP or SI partner ecosystems",eg:"eg. Cloud Alliance Manager, Hyperscaler Partner Lead",nid:"cloud_channel",feat:true});}
+  if(ind==="fmcg"||ind==="industrial") base[1].nodes.push({id:"kam_trade",label:"Key Account Management — trade",sub:"Managing large retail chains or industrial key accounts",eg:"eg. KAM — Modern Trade, Key Account Head",nid:"key_account_trade",feat:true});
+  return base;
+}
+const SENIORITY=[
+  {id:"manager",label:"Manager / Senior Manager",sub:"5–10 years, individual + small team",eg:"Sales Manager, Senior Sales Manager"},
+  {id:"head",label:"Head / Associate Director",sub:"10–15 years, function or region lead",eg:"Sales Head, Area Head, Associate Director"},
+  {id:"director",label:"Director",sub:"12–18 years, large team or P&L owner",eg:"Director — Sales, Director — BD"},
+  {id:"vp",label:"VP / Senior Director",sub:"15–20 years, national or BU level",eg:"VP Sales, Sr. Director Sales"},
+  {id:"cxo",label:"CXO / President",sub:"20+ years, C-suite or full P&L",eg:"CSO, Chief Revenue Officer, President — Sales"},
+];
+let step=0,sel={};
+function getSel(){if(step===0)return sel.ind;if(step===1)return sel.dom;if(step===2)return sel.node;if(step===3)return sel.sen;return true;}
+function render(){
+  for(let i=0;i<4;i++){const e=document.getElementById("sb"+i);e.className="step"+(i===step?" active":i<step?" done":"");}
+  document.getElementById("pf").style.width=((step+1)/5*100)+"%";
+  document.getElementById("backBtn").style.display=step>0?"":"none";
+  const nb=document.getElementById("nextBtn");
+  nb.disabled=!getSel();
+  nb.style.display=step<4?"":"none";
+  if(step===0)renderInd();
+  else if(step===1)renderDom();
+  else if(step===2)renderNodes();
+  else if(step===3)renderSen();
+  else renderSummary();
+}
+function renderInd(){
+  let h='<div class="q">Which industry are you in?</div><div class="qsub">Select the industry that best describes your current or most recent company.</div><div class="options">';
+  INDUSTRIES.forEach(i=>{h+=`<div class="opt${sel.ind===i.id?" selected":""}" onclick="pick('ind','${i.id}')"><div class="opt-label">${i.label}</div><div class="opt-sub">${i.sub}</div><div class="opt-eg">${i.eg}</div></div>`;});
+  document.getElementById("content").innerHTML=h+"</div>";
+}
+function renderDom(){
+  const ind=INDUSTRIES.find(i=>i.id===sel.ind);
+  let h=`<div class="q">Which part of ${ind.label}?</div><div class="qsub">This helps us match you to roles within the right sub-sector.</div><div class="options">`;
+  (DOMAINS[sel.ind]||[]).forEach(d=>{h+=`<div class="opt${sel.dom===d.id?" selected":""}" onclick="pick('dom','${d.id}')"><div class="opt-label">${d.label}</div><div class="opt-eg">${d.eg}</div></div>`;});
+  document.getElementById("content").innerHTML=h+"</div>";
+}
+function renderNodes(){
+  const indLabel=INDUSTRIES.find(i=>i.id===sel.ind)?.label.split(" ")[0]||"";
+  let h='<div class="q">What best describes what you do in Sales?</div><div class="qsub">Pick your primary role. If you do multiple things, choose the one you spend most time on and where your main KPI sits.</div>';
+  getNodes(sel.ind).forEach(g=>{
+    h+=`<div class="group-label">${g.group}</div><div class="options">`;
+    g.nodes.forEach(n=>{h+=`<div class="opt${sel.node===n.id?" selected":""}${n.feat?" featured":""}" onclick="pickNode('${n.id}','${n.nid}')"><div class="opt-label">${n.label}${n.feat?`<span class="badge">${indLabel}</span>`:""}</div><div class="opt-sub">${n.sub}</div><div class="opt-eg">${n.eg}</div></div>`;});
+    h+="</div>";
+  });
+  document.getElementById("content").innerHTML=h;
+}
+function renderSen(){
+  let h='<div class="q">What is your seniority level?</div><div class="qsub">Based on your years of experience and scope of responsibility.</div><div class="options">';
+  SENIORITY.forEach(s=>{h+=`<div class="opt${sel.sen===s.id?" selected":""}" onclick="pick('sen','${s.id}')"><div class="opt-label">${s.label}</div><div class="opt-sub">${s.sub}</div><div class="opt-eg">${s.eg}</div></div>`;});
+  document.getElementById("content").innerHTML=h+"</div>";
+}
+function renderSummary(){
+  const ind=INDUSTRIES.find(i=>i.id===sel.ind);
+  const dom=(DOMAINS[sel.ind]||[]).find(d=>d.id===sel.dom);
+  const sen=SENIORITY.find(s=>s.id===sel.sen);
+  let nodeLabel="",nodeId="";
+  getNodes(sel.ind).forEach(g=>g.nodes.forEach(n=>{if(n.id===sel.node){nodeLabel=n.label;nodeId=n.nid;}}));
+  document.getElementById("content").innerHTML=`
+    <div class="q" style="margin-bottom:.75rem">Your profile — confirmed</div>
+    <div class="summary">
+      <div class="sum-row"><span class="sum-lbl">Industry</span><span class="sum-val">${ind?.label||"—"}</span></div>
+      <div class="sum-row"><span class="sum-lbl">Domain</span><span class="sum-val">${dom?.label||"—"}</span></div>
+      <div class="sum-row"><span class="sum-lbl">Role</span><span class="sum-val">${nodeLabel}<span class="sum-node">${nodeId}</span></span></div>
+      <div class="sum-row"><span class="sum-lbl">Seniority</span><span class="sum-val">${sen?.label||"—"}</span></div>
+    </div>
+    <div class="confirm-note">This is how we'll match jobs to your profile. You can update this anytime from your profile settings.</div>
+    <div style="display:flex;gap:8px"><button class="btn" onclick="goBack()">← Edit</button><button class="btn primary" onclick="alert('Profile saved!')">Confirm & continue →</button></div>`;
+  document.getElementById("nav").style.display="none";
+}
+function pick(k,v){sel[k]=v;if(k==='ind'){sel.dom=null;sel.node=null;}if(k==='dom'){sel.node=null;}render();}
+function pickNode(id,nid){sel.node=id;sel.nodeId=nid;render();}
+function goNext(){if(!getSel())return;step=Math.min(4,step+1);render();}
+function goBack(){step=Math.max(0,step-1);document.getElementById("nav").style.display="flex";render();}
+render();
+</script>
+</body>
+</html>

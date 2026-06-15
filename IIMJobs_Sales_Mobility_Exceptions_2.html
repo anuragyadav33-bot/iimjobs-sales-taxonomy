@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IIMJobs - Sales Mobility Exceptions</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#F8F9FA;color:#1A1A1A}
+.header{background:#fff;border-bottom:1px solid #E5E5E5;padding:1.25rem 2rem}
+.logo{font-size:12px;font-weight:700;color:#185FA5;letter-spacing:.05em;text-transform:uppercase;margin-bottom:3px}
+.header-title{font-size:17px;font-weight:700;color:#1A1A1A}
+.header-sub{font-size:12px;color:#888;margin-top:2px}
+.container{max-width:1000px;margin:0 auto;padding:2rem 1.5rem}
+.default-rule{background:#EBF4FF;border-left:3px solid #185FA5;border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin-bottom:2rem}
+.default-rule-title{font-size:13px;font-weight:700;color:#185FA5;margin-bottom:4px}
+.default-rule-body{font-size:13px;color:#333;line-height:1.6}
+.section{margin-bottom:2.5rem}
+.section-title{font-size:15px;font-weight:700;color:#1A1A1A;margin-bottom:.25rem;display:flex;align-items:center;gap:8px}
+.section-sub{font-size:12px;color:#888;margin-bottom:1rem;line-height:1.5}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.b-free{background:#E1F5EE;color:#085041}
+.b-locked{background:#F1EFE8;color:#444441}
+.b-perm{background:#EBF4FF;color:#0C447C}
+.b-domain{background:#EEEDFE;color:#3C3489}
+.b-high{background:#E1F5EE;color:#085041}
+.b-stretch{background:#FFF3CD;color:#6D4C00}
+.b-hard{background:#FFEBEE;color:#7F1F1F}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:#185FA5;color:#fff;padding:8px 12px;text-align:left;font-size:11px;font-weight:700;white-space:nowrap}
+td{padding:8px 12px;border-bottom:1px solid #F0F0F0;vertical-align:top}
+tr:nth-child(even) td{background:#FAFAFA}
+tr:last-child td{border-bottom:none}
+.tbl-wrap{border:1px solid #E5E5E5;border-radius:10px;overflow:hidden;margin-bottom:.75rem}
+.node-name{font-weight:600;color:#1A1A1A;font-size:12px}
+.node-sub{font-size:10px;color:#AAA;margin-top:1px}
+.rule-text{font-size:12px;color:#444;line-height:1.6}
+.eg{font-size:11px;color:#888;margin-top:2px;font-style:italic}
+.divider{border:none;border-top:1px solid #E5E5E5;margin:2rem 0}
+.count-pill{font-size:11px;padding:2px 8px;border-radius:20px;background:#F0F0F0;color:#666;font-weight:600}
+footer{text-align:center;font-size:11px;color:#CCC;padding:1.5rem;border-top:1px solid #EEE;margin-top:2rem}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">IIMJobs</div>
+  <div class="header-title">Sales Mobility -- Exception Rules</div>
+  <div class="header-sub">Simplified framework for algorithmic job-candidate matching &middot; v1.0</div>
+</div>
+
+<div class="container">
+
+  <!-- Default Rule -->
+  <div class="default-rule">
+    <div class="default-rule-title">Default matching rule</div>
+    <div class="default-rule-body">
+      <strong>Same node + same industry = match.</strong> Cross-industry is a stretch or hard by default -- do not surface unless the candidate has explicitly opted in to cross-industry search, or the node falls under one of the exceptions below.
+    </div>
+  </div>
+
+  <!-- Exception 1: Free nodes -->
+  <div class="section">
+    <div class="section-title">
+      <span class="badge b-free">Exception 1</span>
+      Nodes that travel freely across all industries
+    </div>
+    <div class="section-sub">These nodes are industry-agnostic. A candidate in this subclass can be matched to any industry without penalty. Industry is irrelevant for scoring.</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Node</th><th>Why it travels freely</th><th>Matching rule</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><div class="node-name">Sales Operations</div><div class="node-sub">Infrastructure</div></td>
+            <td class="rule-text">CRM, pipeline reporting, deal desk -- process and tooling is identical across industries</td>
+            <td><span class="badge b-free">Ignore industry</span></td>
+          </tr>
+          <tr>
+            <td><div class="node-name">Revenue Operations</div><div class="node-sub">Infrastructure</div></td>
+            <td class="rule-text">Cross-functional revenue infrastructure -- GTM ops, forecasting, attribution. Universal skill set</td>
+            <td><span class="badge b-free">Ignore industry</span></td>
+          </tr>
+          <tr>
+            <td><div class="node-name">Sales Enablement</div><div class="node-sub">Infrastructure</div></td>
+            <td class="rule-text">Playbooks, onboarding, coaching -- methodology transfers across industries</td>
+            <td><span class="badge b-free">Ignore industry</span></td>
+          </tr>
+          <tr>
+            <td><div class="node-name">Sales Leadership</div><div class="node-sub">Infrastructure</div></td>
+            <td class="rule-text">P&amp;L ownership, team building, sales strategy -- senior enough to abstract away industry specifics. Applies at Director+ level</td>
+            <td><span class="badge b-free">Ignore industry at Director+</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Exception 2: Locked nodes -->
+  <div class="section">
+    <div class="section-title">
+      <span class="badge b-locked">Exception 2</span>
+      Nodes locked to their home industry
+    </div>
+    <div class="section-sub">These nodes are so industry-specific that cross-industry matching should be suppressed entirely, regardless of candidate preference. Score = 0.05 outside home industry.</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Node</th><th>Home industry</th><th>Why locked</th><th>Only exception</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><div class="node-name">Medical Representative</div><div class="node-sub">New Account Acq.</div></td>
+            <td><span class="badge b-locked">Pharma only</span></td>
+            <td class="rule-text">Scientific product knowledge, doctor relationships, MCI/regulatory -- cannot be replicated outside Pharma</td>
+            <td class="rule-text">Pharma Rx &lt;-&gt; MedTech is a stretch (0.6) if candidate has hospital/specialty experience</td>
+          </tr>
+          <tr>
+            <td><div class="node-name">Wealth / Relationship Manager</div><div class="node-sub">Account Ownership</div></td>
+            <td><span class="badge b-locked">BFSI only</span></td>
+            <td class="rule-text">HNI client relationships, SEBI/IRDAI compliance, product licensing -- fully BFSI-bound</td>
+            <td class="rule-text">BFSI &lt;-&gt; Fintech is adjacent (0.6) -- Wealth RM can move to wealthtech</td>
+          </tr>
+          <tr>
+            <td><div class="node-name">Loan / Insurance Sales</div><div class="node-sub">New Account Acq.</div></td>
+            <td><span class="badge b-locked">BFSI only</span></td>
+            <td class="rule-text">Product-specific regulatory knowledge, DSA networks, insurance licensing</td>
+            <td class="rule-text">BFSI &lt;-&gt; Fintech adjacency applies (lending tech, insurtech)</td>
+          </tr>
+          <tr>
+            <td><div class="node-name">Admissions Counsellor</div><div class="node-sub">New Account Acq.</div></td>
+            <td><span class="badge b-locked">Edtech only</span></td>
+            <td class="rule-text">Student counselling, course advisory, enrolment metrics -- Edtech-specific motion</td>
+            <td class="rule-text">Edtech &lt;-&gt; Consumer Internet adjacency -- may work for consumer subscription products</td>
+          </tr>
+          <tr>
+            <td><div class="node-name">Property Sales</div><div class="node-sub">New Account Acq.</div></td>
+            <td><span class="badge b-locked">Real Estate only</span></td>
+            <td class="rule-text">Site visits, developer relationships, registration process -- Real Estate is fully self-contained</td>
+            <td class="rule-text">None -- Real Estate sales is a closed ecosystem</td>
+          </tr>
+          <tr>
+            <td><div class="node-name">B2G / Government Sales</div><div class="node-sub">Constrained Context</div></td>
+            <td><span class="badge b-locked">Any, but locked</span></td>
+            <td class="rule-text">Tender processes, PSU relationships, bureaucratic procurement -- rarely moves to private sector</td>
+            <td class="rule-text">None -- government sales experience does not transfer commercially</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Exception 3: Permeable pairs -->
+  <div class="section">
+    <div class="section-title">
+      <span class="badge b-perm">Exception 3</span>
+      Industry pairs that are genuinely permeable
+    </div>
+    <div class="section-sub">For all other nodes (generic nodes not in Exception 1 or 2), these industry pairs get a 0.6 score instead of the default 0.2. The move is a stretch but worth surfacing.</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Score</th><th>Applies to which nodes</th><th>Rationale</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="rule-text"><strong>SaaS</strong></td>
+            <td class="rule-text"><strong>IT Services</strong></td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">Enterprise Sales, Inside Sales, Pre-Sales, Channel Sales, BD</td>
+            <td class="rule-text">Same enterprise buyer (CTO/CIO), similar deal structure and sales cycle</td>
+          </tr>
+          <tr>
+            <td class="rule-text"><strong>SaaS</strong></td>
+            <td class="rule-text"><strong>Edtech</strong></td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">Inside Sales, BD, Account Mgmt, Sales Ops, Rev Ops</td>
+            <td class="rule-text">Digital-first, growth-led, inside sales motion overlap</td>
+          </tr>
+          <tr>
+            <td class="rule-text"><strong>SaaS</strong></td>
+            <td class="rule-text"><strong>Fintech</strong></td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">Enterprise Sales, BD, Inside Sales, Account Mgmt</td>
+            <td class="rule-text">Product-led B2B sales overlap -- fintech increasingly looks like SaaS GTM</td>
+          </tr>
+          <tr>
+            <td class="rule-text"><strong>SaaS</strong></td>
+            <td class="rule-text"><strong>Consumer Internet</strong></td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">BD, Partnerships, Sales Ops, Rev Ops</td>
+            <td class="rule-text">Fintech + ecommerce crossover, growth and GTM overlap</td>
+          </tr>
+          <tr>
+            <td class="rule-text"><strong>SaaS</strong></td>
+            <td class="rule-text"><strong>Telecom</strong></td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">Enterprise Sales, Pre-Sales, Channel Sales</td>
+            <td class="rule-text">Cloud + connectivity convergence -- Cisco/Juniper style enterprise selling</td>
+          </tr>
+          <tr>
+            <td class="rule-text"><strong>IT Services</strong></td>
+            <td class="rule-text"><strong>Telecom</strong></td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">Enterprise Sales, Pre-Sales, Account Mgmt</td>
+            <td class="rule-text">Enterprise tech sales, B2B overlap, similar SI motion</td>
+          </tr>
+          <tr>
+            <td class="rule-text"><strong>IT Services</strong></td>
+            <td class="rule-text"><strong>Edtech</strong></td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">Enterprise Sales, Account Mgmt, BD</td>
+            <td class="rule-text">B2B institutional sales overlap -- selling to universities and corporates</td>
+          </tr>
+          <tr>
+            <td class="rule-text"><strong>FMCG</strong></td>
+            <td class="rule-text"><strong>Industrial</strong></td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">Field Sales, Channel Sales, KAM Trade, Account Mgmt</td>
+            <td class="rule-text">Distribution, trade, field sales motion overlap</td>
+          </tr>
+          <tr>
+            <td class="rule-text"><strong>FMCG</strong></td>
+            <td class="rule-text"><strong>Pharma</strong></td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">Field Sales, Channel Sales, KAM Trade -- excludes Medical Rep track</td>
+            <td class="rule-text">Field sales and distributor management motion overlap</td>
+          </tr>
+          <tr>
+            <td class="rule-text"><strong>Industrial</strong></td>
+            <td class="rule-text"><strong>Real Estate</strong></td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">Enterprise Sales, BD -- specifically EPC / project sales context</td>
+            <td class="rule-text">EPC, building materials, large project sales overlap</td>
+          </tr>
+          <tr>
+            <td class="rule-text"><strong>Industrial</strong></td>
+            <td class="rule-text"><strong>Telecom</strong></td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">Enterprise Sales, Channel Sales</td>
+            <td class="rule-text">B2B hardware and network infrastructure overlap</td>
+          </tr>
+          <tr>
+            <td class="rule-text"><strong>BFSI</strong></td>
+            <td class="rule-text"><strong>Fintech</strong></td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">Account Mgmt, BD, Enterprise Sales -- excludes Wealth RM and Loan Sales</td>
+            <td class="rule-text">Closest relatives -- traditional and digital finance converging</td>
+          </tr>
+          <tr>
+            <td class="rule-text"><strong>BFSI</strong></td>
+            <td class="rule-text"><strong>Real Estate</strong></td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">Enterprise Sales, Account Mgmt, BD</td>
+            <td class="rule-text">Relationship-led, high-value, regulated context overlap</td>
+          </tr>
+          <tr>
+            <td class="rule-text"><strong>Fintech</strong></td>
+            <td class="rule-text"><strong>Consumer Internet</strong></td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">BD, Partnerships, Inside Sales, E-Comm / Marketplace</td>
+            <td class="rule-text">Payments + ecommerce intersection -- Razorpay/PhonePe hiring profile</td>
+          </tr>
+          <tr>
+            <td class="rule-text"><strong>Consumer Internet</strong></td>
+            <td class="rule-text"><strong>Edtech</strong></td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">BD, Inside Sales, Partnerships, E-Comm / Marketplace</td>
+            <td class="rule-text">Digital growth, inside sales motion, similar GTM structure</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:11px;color:#888;line-height:1.6">Note: All permeable pairs are bidirectional (A to B = B to A) unless data shows asymmetry. Market research team to validate directionality from IIMJobs transition data.</div>
+  </div>
+
+  <!-- Exception 4: Domain variations -->
+  <div class="section">
+    <div class="section-title">
+      <span class="badge b-domain">Exception 4</span>
+      Domain-level variations within the same industry
+    </div>
+    <div class="section-sub">Within the same industry, domain fine-tunes the match. Same industry + same domain = 1.0. Same industry + adjacent domain = 0.8. Same industry + different domain = 0.6. These are the only cases where domain changes the score within an industry.</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Industry</th><th>Domain A</th><th>Domain B</th><th>Score</th><th>Rationale</th></tr></thead>
+        <tbody>
+          <tr>
+            <td rowspan="2" style="vertical-align:top;font-weight:600">FMCG</td>
+            <td class="rule-text">CPG / FMCG</td>
+            <td class="rule-text">Beauty &amp; Personal Care</td>
+            <td><span class="badge b-high">0.8</span></td>
+            <td class="rule-text">Adjacent buyer, similar modern trade and GT sales motion</td>
+          </tr>
+          <tr>
+            <td class="rule-text">CPG / FMCG</td>
+            <td class="rule-text">Fashion / Durables</td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">Same industry but different channel and buyer context</td>
+          </tr>
+          <tr>
+            <td rowspan="2" style="vertical-align:top;font-weight:600">BFSI</td>
+            <td class="rule-text">Banking &amp; Lending</td>
+            <td class="rule-text">Insurance</td>
+            <td><span class="badge b-high">0.8</span></td>
+            <td class="rule-text">Bancassurance overlap -- common cross-sell motion</td>
+          </tr>
+          <tr>
+            <td class="rule-text">Banking &amp; Lending</td>
+            <td class="rule-text">Investments &amp; Wealth</td>
+            <td><span class="badge b-high">0.8</span></td>
+            <td class="rule-text">RM skill set transfers -- same HNI relationship context</td>
+          </tr>
+          <tr>
+            <td rowspan="2" style="vertical-align:top;font-weight:600">SaaS</td>
+            <td class="rule-text">SaaS Software Products</td>
+            <td class="rule-text">AI / ML Platforms</td>
+            <td><span class="badge b-high">0.8</span></td>
+            <td class="rule-text">Same GTM, same buyer (CTO/CPO), similar deal structure</td>
+          </tr>
+          <tr>
+            <td class="rule-text">SaaS Software Products</td>
+            <td class="rule-text">Data &amp; Analytics</td>
+            <td><span class="badge b-high">0.8</span></td>
+            <td class="rule-text">Adjacent domain -- overlapping enterprise buyer</td>
+          </tr>
+          <tr>
+            <td style="vertical-align:top;font-weight:600">IT Services</td>
+            <td class="rule-text">IT Outsourcing</td>
+            <td class="rule-text">IT Consulting</td>
+            <td><span class="badge b-high">0.8</span></td>
+            <td class="rule-text">Same SI ecosystem, similar enterprise sales motion</td>
+          </tr>
+          <tr>
+            <td rowspan="2" style="vertical-align:top;font-weight:600">Pharma</td>
+            <td class="rule-text">Pharma Rx</td>
+            <td class="rule-text">MedTech &amp; Devices</td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">Different buyer -- doctor vs hospital admin / surgeon</td>
+          </tr>
+          <tr>
+            <td class="rule-text">Pharma Rx</td>
+            <td class="rule-text">Healthcare Services</td>
+            <td><span class="badge b-hard">0.4</span></td>
+            <td class="rule-text">Institutional vs prescription -- significantly different context</td>
+          </tr>
+          <tr>
+            <td rowspan="2" style="vertical-align:top;font-weight:600">Industrial</td>
+            <td class="rule-text">Industrial Machinery</td>
+            <td class="rule-text">Automotive</td>
+            <td><span class="badge b-high">0.8</span></td>
+            <td class="rule-text">B2B manufacturing buyer overlap, similar deal complexity</td>
+          </tr>
+          <tr>
+            <td class="rule-text">Machinery / Auto</td>
+            <td class="rule-text">Industrial Chemicals</td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">Different product complexity and buyer profile</td>
+          </tr>
+          <tr>
+            <td style="vertical-align:top;font-weight:600">Edtech</td>
+            <td class="rule-text">Edtech Platforms</td>
+            <td class="rule-text">Skilling &amp; Vocational</td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">Similar inside sales motion, different buyer (B2C vs B2B)</td>
+          </tr>
+          <tr>
+            <td rowspan="2" style="vertical-align:top;font-weight:600">Real Estate</td>
+            <td class="rule-text">Residential</td>
+            <td class="rule-text">Commercial</td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">Different buyer -- individual vs institutional investor</td>
+          </tr>
+          <tr>
+            <td class="rule-text">Residential / Commercial</td>
+            <td class="rule-text">EPC &amp; Infrastructure</td>
+            <td><span class="badge b-hard">0.4</span></td>
+            <td class="rule-text">Very different sales context -- project-led vs property transaction</td>
+          </tr>
+          <tr>
+            <td style="vertical-align:top;font-weight:600">Consumer Internet</td>
+            <td class="rule-text">E-Commerce</td>
+            <td class="rule-text">Consumer Apps</td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">Same digital growth motion, similar GTM and inside sales</td>
+          </tr>
+          <tr>
+            <td rowspan="2" style="vertical-align:top;font-weight:600">Telecom</td>
+            <td class="rule-text">Telecom Operators</td>
+            <td class="rule-text">Telecom Infrastructure</td>
+            <td><span class="badge b-stretch">0.6</span></td>
+            <td class="rule-text">Different buyer -- consumer / SMB vs enterprise / govt</td>
+          </tr>
+          <tr>
+            <td class="rule-text">Telecom Infrastructure</td>
+            <td class="rule-text">Networking &amp; Hardware</td>
+            <td><span class="badge b-high">0.8</span></td>
+            <td class="rule-text">Both B2B enterprise, similar solution-selling motion</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div style="background:#F8F9FA;border:1px solid #E5E5E5;border-radius:10px;padding:1.25rem 1.5rem;margin-bottom:2rem">
+    <div style="font-size:13px;font-weight:700;color:#1A1A1A;margin-bottom:.75rem">Algorithm summary -- 4 rules, in order of application</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="background:#185FA5;color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</span>
+        <div style="font-size:12px;color:#333"><strong>Check Exception 2 (locked nodes) first.</strong> If the candidate is on a locked node and the job is outside their home industry, score = 0.05. Stop.</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="background:#185FA5;color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">2</span>
+        <div style="font-size:12px;color:#333"><strong>Check Exception 1 (free nodes).</strong> If the candidate is on a free node, ignore industry entirely. Score on node match only.</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="background:#185FA5;color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">3</span>
+        <div style="font-size:12px;color:#333"><strong>Same industry?</strong> Apply Exception 4 (domain score). Same domain = 1.0, adjacent domain = 0.8, different domain = 0.6.</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="background:#185FA5;color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">4</span>
+        <div style="font-size:12px;color:#333"><strong>Different industry?</strong> Check Exception 3 (permeable pairs). If the pair is listed, score = 0.6. Otherwise score = 0.2 (hard -- only surface if candidate opted in).</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>IIMJobs &middot; Sales Taxonomy v1.0 &middot; Premium Talent Platform &middot; Confidential</footer>
+</body>
+</html>
